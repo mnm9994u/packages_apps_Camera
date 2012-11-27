@@ -54,10 +54,7 @@ public class CameraActivity extends ActivityBase
 
     private MyOrientationEventListener mOrientationListener;
     // The degrees of the device rotated clockwise from its natural orientation.
-    private int mOrientation = OrientationEventListener.ORIENTATION_UNKNOWN;
-    // The orientation compensation for icons. Eg: if the value
-    // is 90, the UI components should be rotated 90 degrees counter-clockwise.
-    private int mOrientationCompensation = 0;
+    private int mLastRawOrientation = OrientationEventListener.ORIENTATION_UNKNOWN;
 
     private static final String TAG = "CAM_activity";
 
@@ -124,15 +121,7 @@ public class CameraActivity extends ActivityBase
             // the camera then point the camera to floor or sky, we still have
             // the correct orientation.
             if (orientation == ORIENTATION_UNKNOWN) return;
-            mOrientation = Util.roundOrientation(orientation, mOrientation);
-            // When the screen is unlocked, display rotation may change. Always
-            // calculate the up-to-date orientationCompensation.
-            int orientationCompensation =
-                    (mOrientation + Util.getDisplayRotation(CameraActivity.this)) % 360;
-            // Rotate camera mode icons in the switcher
-            if (mOrientationCompensation != orientationCompensation) {
-                mOrientationCompensation = orientationCompensation;
-            }
+            mLastRawOrientation = orientation;
             mCurrentModule.onOrientationChanged(orientation);
         }
     }
@@ -163,8 +152,11 @@ public class CameraActivity extends ActivityBase
                     break;
             }
             openModule(mCurrentModule, canReuse);
-            mCurrentModule.onOrientationChanged(mOrientation);
         }
+        openModule(mCurrentModule, canReuse);
+        mCurrentModule.onOrientationChanged(mLastRawOrientation);
+        getCameraScreenNail().setAlpha(0f);
+        getCameraScreenNail().setOnFrameDrawnOneShot(mOnFrameDrawn);
     }
 
     @Override
