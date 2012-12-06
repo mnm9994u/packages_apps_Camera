@@ -129,9 +129,9 @@ public class CameraActivity extends ActivityBase
     @Override
     public void onCameraSelected(int i) {
         if (mPaused) return;
+        boolean canReuse = canReuseScreenNail();
         if (i != mCurrentModuleIndex) {
             mPaused = true;
-            boolean canReuse = canReuseScreenNail();
             CameraHolder.instance().keep();
             closeModule(mCurrentModule);
             mCurrentModuleIndex = i;
@@ -151,12 +151,9 @@ public class CameraActivity extends ActivityBase
                 case GALLERY_MODULE_INDEX:
                     break;
             }
-            openModule(mCurrentModule, canReuse);
         }
         openModule(mCurrentModule, canReuse);
         mCurrentModule.onOrientationChanged(mLastRawOrientation);
-        getCameraScreenNail().setAlpha(0f);
-        getCameraScreenNail().setOnFrameDrawnOneShot(mOnFrameDrawn);
     }
 
     @Override
